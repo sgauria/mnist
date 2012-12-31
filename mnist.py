@@ -1,3 +1,4 @@
+import random
 
 training  = 0
 imagefile = "train-images-idx3-ubyte" if training else "t10k-images-idx3-ubyte"
@@ -9,13 +10,17 @@ def bytelist_to_uint(bytelist):
         val = val * 256 + b
     return val
 
-def read_idx_file(filename):
+def read_idx_file(filename, imgs_to_read=0):
     with open(filename, 'rb') as f:
         bytelist = f.read()
         assert(bytelist[0:2] == bytes([0,0])) # Magic value.
         datatype = bytelist[2]
         num_dims = bytelist[3]
         num_imgs = bytelist_to_uint(bytelist[ 4: 8])
+        full_list = 1
+        if 0 < imgs_to_read < num_imgs:
+            num_imgs = imgs_to_read
+            full_list = 0
         start_pos = 8
         dim_sizes = [num_imgs]
         for i in range(num_dims - 1):
@@ -26,7 +31,8 @@ def read_idx_file(filename):
         print(dim_sizes)
 
         results, bytes_read = get_one_idx_entry(bytelist, start_pos, num_dims, dim_sizes, datatype)
-        assert (start_pos + bytes_read == len(bytelist)) # Whole list consumed.
+        if full_list :
+            assert (start_pos + bytes_read == len(bytelist)) # Whole list consumed.
 
         return results       
 
@@ -60,17 +66,44 @@ def image_to_str(img):
     return s
 
 def val_to_char(p):
-    c = ' '
+    c = '.'
     if p > 128:
         c = '#'
     return c
 
 
-image_list = read_idx_file(imagefile)
-label_list = read_idx_file(labelfile)
-idx = 402
-i = image_list[idx]
-l = label_list[idx]
+num_imgs = 10000
+image_list = read_idx_file(imagefile, num_imgs)
+label_list = read_idx_file(labelfile, num_imgs)
 
-print (l)
-print (image_to_str(i))
+if 0 :
+    for i in range(10):
+        idx = random.randrange(num_imgs)
+        i = image_list[idx]
+        l = label_list[idx]
+        print (idx)
+        print (l)
+        print (image_to_str(i))
+
+
+import difflib
+import pprint
+def compare_images (img1, img2):
+    """ This function seems to be useless"""
+    s1 = image_to_str(img1)
+    s2 = image_to_str(img2)
+    dsm = difflib.SequenceMatcher(None, s1, s2)
+    score = dsm.ratio()
+    # print(s1)
+    # print(s2)
+    # dd = difflib.Differ()
+    # difflines = list(dd.compare(s1.splitlines(1), s2.splitlines(1)))
+    # pprint.pprint(difflines)
+    
+    return score
+
+# Diff two 3's.
+# score = compare_images(image_list[6107], image_list[5573])
+# print(score)
+# Result is 0.19. Pah!
+    
