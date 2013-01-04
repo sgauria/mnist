@@ -107,3 +107,24 @@ def compare_images (img1, img2):
 # print(score)
 # Result is 0.19. Pah!
     
+
+
+
+
+# Possible way to approach this problem :
+# Writer :
+    # Create a parameterized generator for each writing convention for each digit.
+    # It will have ~ 10 parameters.
+    # After that one can perturb the edges to account for variations in thickness.
+    # Of course, if the generator can generate the image one is trying to recognize, then we have a match.
+    # But it seems hard to solve this multi-variable vector equation.
+    # So, we'll just use this for testing and checking.
+# Reader :
+    # for each candidate character :
+        # for each writing style :
+            # Try to get a close initial condition :
+            # Set up rules to extract a good starting set of values for the writer parameters for each digit.
+            # Use starting set as seed and randomize (or search?) about that point to get a good match.
+            # Then perturb thickness to get a really good match.
+            # Finally yield a match score.
+    # Pick and return best or top few.    
