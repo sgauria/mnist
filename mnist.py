@@ -73,6 +73,7 @@ def val_to_char(p):
 
 
 num_imgs = 10000
+num_imgs = 7000  # Temp hack.
 image_list = read_idx_file(imagefile, num_imgs)
 label_list = read_idx_file(labelfile, num_imgs)
 
@@ -88,7 +89,7 @@ if 0 :
 
 import difflib
 import pprint
-def compare_images (img1, img2):
+def compare_images_difflib (img1, img2):
     """ This function seems to be useless"""
     s1 = image_to_str(img1)
     s2 = image_to_str(img2)
@@ -101,17 +102,34 @@ def compare_images (img1, img2):
     # pprint.pprint(difflines)
     
     return score
-
-# Diff two 3's.
-# score = compare_images(image_list[6107], image_list[5573])
+# score = compare_images_difflib(image_list[6107], image_list[5573])
 # print(score)
 # Result is 0.19. Pah!
+
+def compare_images(img1, img2):
+    total_pixels, total_difference = 0,0
+    diffstr = ""
+    for y in range(len(img1)):
+        for x in range(len(img1[0])):
+            total_pixels += 1
+            total_difference += abs(img1[y][x] - img2[y][x])
+    return 1 - ((total_difference/255.0) / total_pixels)
+# score = compare_images(image_list[6107], image_list[5573])
+# This function scores 0.91 for the 2 3s above,
+# But returns scores around 0.8 for completely different digits.
+
+# Diff two 3's.
+score = compare_images(image_list[6107], image_list[5573])
+print (image_to_str(image_list[6107]))
+print (image_to_str(image_list[5573]))
+print (score)
+
     
 
 
 
 
-# Possible way to approach this problem :
+# Possible way to approach this problem : Jan 4
 # Writer :
     # Create a parameterized generator for each writing convention for each digit.
     # It will have ~ 10 parameters.
@@ -128,3 +146,11 @@ def compare_images (img1, img2):
             # Then perturb thickness to get a really good match.
             # Finally yield a match score.
     # Pick and return best or top few.    
+
+# Updated thoughts : Feb 4
+# Create Writer as above.
+   # Run a bunch of writer instances generating a bunch of examples
+   # Compare with all of them, pick best as answer.
+   # But this is meaningless, since the examples have nothing to do with the input.
+   # So, might as well just store a database of handwritten digits, and compare with them.
+# Definitely need a better diff function.
